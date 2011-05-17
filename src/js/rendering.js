@@ -22,7 +22,7 @@ function render() {
 
   shared.currentScene.update();
   renderer.render( scene, camera );
-  requestAnimationFrame( render );
   stats.update();
+  requestAnimationFrame( render );
 
 }
