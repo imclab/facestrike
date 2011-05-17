@@ -19,127 +19,30 @@
 <script type="text/javascript" src="js/libs/RequestAnimationFrame.js"></script>
 <script type="text/javascript" src="js/libs/Stats.js"></script>
 
+<script type="text/javascript" src="js/initCanvas.js"></script>
+<script type="text/javascript" src="js/rendering.js"></script>
+<script type="text/javascript" src="js/initModels.js"></script>
+<script type="text/javascript" src="js/scenes/sandboxScene.js"></script>
+<script type="text/javascript" src="js/initScene.js"></script>
+
+
 <script type="text/javascript">
+
   window.onload = function() {
+
+    initCanvas();
+    initRenderer();
     initModels();
+
   };
 
-  var container, stats;
-
-  var camera, scene, renderer;
-
-  var alley;
-  var lane, laneMaterial;
-  var ball, ballMaterial;
-  var pin = [];
-  var pinMaterial;
-
-  var light = [];
-  var model = [];
-
+  var currentScene = "sandbox";
+  
   var targetRotation = 0;
   var targetRotationOnMouseDown = 0;
 
   var mouseX = 0;
   var mouseXOnMouseDown = 0;
-
-  var windowHalfX = window.innerWidth / 2;
-  var windowHalfY = window.innerHeight / 2;
-    
-  function initModels() {
-
-    model.push({"file": 'assets/models/pin.js', "name": 'pin' });
-
-    modelLoader(0);
-
-    function modelLoader(id) {
-      if(model[id].geometry !== 'undefined' ){
-        loader = new THREE.JSONLoader();
-        loader.load({ model: model[id].file, callback: function(g) {
-          model[id].geometry = g;
-          if (id < model.length-1) modelLoader(id+1);
-          else { initScene(); animate(); }
-        } });
-      }
-    }
-
-  }
-
-  function initScene() {
-
-    container = document.createElement( 'div' );
-    document.body.appendChild( container );
-
-    stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
-    container.appendChild( stats.domElement );
-
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    container.appendChild( renderer.domElement );
-
-    camera = new THREE.Camera( 35, window.innerWidth / window.innerHeight, 10, 10000 );
-    camera.position.y = 100;
-    camera.position.z = -1200;
-
-    scene = new THREE.Scene();
-
-    alley = new THREE.Object3D();
-    scene.addObject( alley );
-
-    // Lane
-    laneMaterial = new THREE.MeshLambertMaterial( {map: THREE.ImageUtils.loadTexture("assets/textures/lane.jpg"), color: 0xffffff, lights: true } );
-    lane = new THREE.Mesh( new THREE.Plane( 99, 1800 ), laneMaterial );
-    lane.rotation.x = - 90 * ( Math.PI / 180 );
-    alley.addChild( lane );
-
-    // Ball
-    ballMaterial = new THREE.MeshLambertMaterial( { color: 0x333333, lights: true } );
-    ball = new THREE.Mesh( new THREE.Sphere( 10, 30, 30 ), ballMaterial );
-    ball.position.y = 10;
-    ball.position.z = -900;
-    alley.addChild( ball );
-
-    // Pins
-
-    var pin_positions = [];
-    pin_positions.push( new THREE.Vector3(0,0,800) );
-    pin_positions.push( new THREE.Vector3(15.25,0,830.5) );
-    pin_positions.push( new THREE.Vector3(-15.25,0,830.5) );
-    pin_positions.push( new THREE.Vector3(30.5,0,861) );
-    pin_positions.push( new THREE.Vector3(0,0,861) );
-    pin_positions.push( new THREE.Vector3(-30.5,0,861) );
-
-    pin_positions.push( new THREE.Vector3(42.75,0,891.5) );
-    pin_positions.push( new THREE.Vector3(12.25,0,891.5) );
-    pin_positions.push( new THREE.Vector3(-12.25,0,891.5) );
-    pin_positions.push( new THREE.Vector3(-42.75,0,891.5) );
-
-    pinMaterial = new THREE.MeshLambertMaterial( {map: THREE.ImageUtils.loadTexture("assets/textures/pin.jpg"),  color: 0xffffff, lights: true } );
-
-    for (var i = 0; i<pin_positions.length; i++){
-
-      pin[i] = new THREE.Mesh( model[0].geometry, pinMaterial );
-      pin[i].position = pin_positions[i];
-      pin[i].position.x += Math.random(1)*0.2;
-      pin[i].position.z += Math.random(2)*0.2;
-      alley.addChild( pin[i] );
-
-    }
-
-    // Lights
-    light[0] = new THREE.AmbientLight( 0x608090 );
-    light[1] = new THREE.DirectionalLight( 0xffcc99, 0.9 );
-    light[1].position.set( 0, 2, -1.5 );
-    scene.addLight( light[0] );
-    scene.addLight( light[1] );
-
-
-    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-    document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-    document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-  }
 
   //
 
@@ -207,13 +110,6 @@
     requestAnimationFrame( animate );
     render();
     stats.update();
-
-  }
-
-  function render() {
-
-    alley.rotation.y += ( targetRotation - lane.rotation.y ) * 0.05;
-    renderer.render( scene, camera );
 
   }
 
