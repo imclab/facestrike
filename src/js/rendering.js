@@ -13,14 +13,16 @@ var renderer = new THREE.WebGLRenderer();
 function initRenderer(){
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( shared.width, shared.height );
   container.appendChild( renderer.domElement );
 
 }
 
 function render() {
 
-  alley.rotation.y += ( targetRotation - lane.rotation.y ) * 0.05;
+  shared.currentScene.update();
   renderer.render( scene, camera );
+  requestAnimationFrame( render );
+  stats.update();
 
 }

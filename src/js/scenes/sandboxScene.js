@@ -11,10 +11,11 @@ var lane, laneMaterial;
 var ball, ballMaterial;
 var pin = [];
 var pinMaterial;
-
 var light = [];
 
-function initSanboxScene() {
+function SandboxScene() {
+
+  this.id = 'sandbox';
 
   camera = new THREE.Camera( 35, window.innerWidth / window.innerHeight, 10, 10000 );
   camera.position.y = 100;
@@ -33,13 +34,13 @@ function initSanboxScene() {
 
   // Ball
   ballMaterial = new THREE.MeshLambertMaterial( { color: 0x333333, lights: true } );
-  ball = new THREE.Mesh( new THREE.Sphere( 10, 30, 30 ), ballMaterial );
-  ball.position.y = 10;
+  ball = new THREE.Mesh( model[1].geometry, ballMaterial );
+  ball.position.y = 15;
   ball.position.z = -900;
+  ball.rotation.x = - 140 * ( Math.PI / 180 );
   alley.addChild( ball );
 
   // Pins
-
   var pin_positions = [];
   pin_positions.push( new THREE.Vector3(0,0,800) );
   pin_positions.push( new THREE.Vector3(15.25,0,830.5) );
@@ -47,7 +48,6 @@ function initSanboxScene() {
   pin_positions.push( new THREE.Vector3(30.5,0,861) );
   pin_positions.push( new THREE.Vector3(0,0,861) );
   pin_positions.push( new THREE.Vector3(-30.5,0,861) );
-
   pin_positions.push( new THREE.Vector3(42.75,0,891.5) );
   pin_positions.push( new THREE.Vector3(12.25,0,891.5) );
   pin_positions.push( new THREE.Vector3(-12.25,0,891.5) );
@@ -72,9 +72,10 @@ function initSanboxScene() {
   scene.addLight( light[0] );
   scene.addLight( light[1] );
 
-  animate();
-
-  document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-  document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-  document.addEventListener( 'touchmove', onDocumentTouchMove, false );
 }
+
+SandboxScene.prototype.update = function(){
+
+  alley.rotation.y = shared.mouse.x/1000;
+
+};

@@ -6,11 +6,11 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var currentScene = '';
 
 function initScene(scene){
 
-  if (scene) currentScene = scene;
-  if (currentScene == 'sandbox') { initSanboxScene(); }
+  if (scene) shared.currentScene.id = scene;
+  if (shared.currentScene.id == 'sandbox') { shared.currentScene = new SandboxScene(); }
+  render();
   
 }

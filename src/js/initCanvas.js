@@ -7,8 +7,6 @@
  */
 
 var container, stats;
-var windowHalfX = window.innerWidth / 2;
-var windowHalfY = window.innerHeight / 2;
 
 function initCanvas(){
 

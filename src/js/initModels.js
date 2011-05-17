@@ -11,6 +11,7 @@ var model = [];
 function initModels() {
 
   model.push({"file": 'assets/models/pin.js', "name": 'pin' });
+  model.push({"file": 'assets/models/ball.js', "name": 'ball' });
 
   modelLoader(0);
 

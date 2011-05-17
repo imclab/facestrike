@@ -3,7 +3,6 @@
 <head>
   <title>three.js canvas - geometry - cube</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
   <style type="text/css">
     body {
       font-family: Monospace;
@@ -24,94 +23,14 @@
 <script type="text/javascript" src="js/initModels.js"></script>
 <script type="text/javascript" src="js/scenes/sandboxScene.js"></script>
 <script type="text/javascript" src="js/initScene.js"></script>
+<script type="text/javascript" src="js/events.js"></script>
+
+<script type="text/javascript" src="js/main.js"></script>
 
 
 <script type="text/javascript">
 
-  window.onload = function() {
-
-    initCanvas();
-    initRenderer();
-    initModels();
-
-  };
-
-  var currentScene = "sandbox";
-  
-  var targetRotation = 0;
-  var targetRotationOnMouseDown = 0;
-
-  var mouseX = 0;
-  var mouseXOnMouseDown = 0;
-
-  //
-
-  function onDocumentMouseDown( event ) {
-
-    event.preventDefault();
-
-    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-    document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-    document.addEventListener( 'mouseout', onDocumentMouseOut, false );
-
-    mouseXOnMouseDown = event.clientX - windowHalfX;
-    targetRotationOnMouseDown = targetRotation;
-  }
-
-  function onDocumentMouseMove( event ) {
-
-    mouseX = event.clientX - windowHalfX;
-
-    targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
-  }
-
-  function onDocumentMouseUp( event ) {
-
-    document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-    document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-    document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-  }
-
-  function onDocumentMouseOut( event ) {
-
-    document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-    document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-    document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-  }
-
-  function onDocumentTouchStart( event ) {
-
-    if ( event.touches.length == 1 ) {
-
-      event.preventDefault();
-
-      mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
-      targetRotationOnMouseDown = targetRotation;
-
-    }
-  }
-
-  function onDocumentTouchMove( event ) {
-
-    if ( event.touches.length == 1 ) {
-
-      event.preventDefault();
-
-      mouseX = event.touches[ 0 ].pageX - windowHalfX;
-      targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.05;
-
-    }
-  }
-
-  //
-
-  function animate() {
-
-    requestAnimationFrame( animate );
-    render();
-    stats.update();
-
-  }
+  shared.currentScene.id = "sandbox";
 
 </script>
 
