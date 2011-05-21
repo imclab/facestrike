@@ -17,28 +17,24 @@ var simulation;
 function SandboxScene() {
 
   this.id = 'sandbox';
-
-  camera = new THREE.Camera( 35, window.innerWidth / window.innerHeight, 10, 10000 );
-  camera.position.y = 100;
-  camera.position.z = -1200;
-
+  
+  shared.mainCamera.position.y = 100;
+  shared.mainCamera.position.z = -1200;
+  
   scene = new THREE.Scene();
-
-  alley = new THREE.Object3D();
-  scene.addObject( alley );
 
   // Lane
   laneMaterial = new THREE.MeshLambertMaterial( {map: THREE.ImageUtils.loadTexture("assets/textures/lane.jpg"), color: 0xffffff, lights: true } );
   lane = new THREE.Mesh( new THREE.Plane( 99, 1800 ), laneMaterial );
   lane.rotation.x = - 90 * ( Math.PI / 180 );
-  alley.addChild( lane );
+  scene.addChild( lane );
 
   // Ball
   ballMaterial = new THREE.MeshLambertMaterial( { color: 0x333333, lights: true } );
   ball = new THREE.Mesh( model[1].geometry, ballMaterial );
   
   ball.rotation.x = - 140 * ( Math.PI / 180 );
-  alley.addChild( ball );
+  scene.addChild( ball );
 
   // Pins
   var pin_positions = [];
@@ -61,7 +57,7 @@ function SandboxScene() {
     pin[i].position = pin_positions[i];
     pin[i].position.x += Math.random(1)*0.2;
     pin[i].position.z += Math.random(2)*0.2;
-    alley.addChild( pin[i] );
+    scene.addChild( pin[i] );
 
   }
 
@@ -76,16 +72,15 @@ function SandboxScene() {
   var environmentState = new FaceStrike.Physics.EnvironmentState(3, 0.02);
   simulation = new FaceStrike.BowlingSimulation.Simulation(environmentState, ballState);
 
+  this.ready = true;
+
 }
-
-
 
 SandboxScene.prototype = {
   
   update : function() {
    this.updateModels();
    simulation.update();
-   alley.rotation.y = shared.mouse.x/1000;     
    
   },
   
@@ -96,6 +91,10 @@ SandboxScene.prototype = {
     ball.position.x =  ballState.position.x;
     ball.position.y =  ballState.position.y;
     ball.position.z =  ballState.position.z;
+    
+    shared.ballCamera.position.x = ball.position.x;
+    shared.ballCamera.position.y = ball.position.y + 20;
+    shared.ballCamera.position.z = ball.position.z - 60;
   }
   
 }

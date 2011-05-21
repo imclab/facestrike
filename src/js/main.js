@@ -1,5 +1,12 @@
 var shared = {
 
+  mainCamera: new THREE.Camera(),
+  freeCamera: new THREE.Camera(),
+  ballCamera: new THREE.Camera(),
+  
+  scene: new THREE.Scene(),
+  renderer: new THREE.WebGLRenderer(),
+
   mouse : { x: 0, y: 0, drag: false },
 
   width: window.innerWidth,
@@ -8,28 +15,21 @@ var shared = {
   halfHeight: window.innerHeight/2,
 
   currentScene: {
-    id: ''
-  },
-
-  config: {
-    domSrc : ''
+    id: '',
+    ready: false
   },
   
+  currentCamera: 0,
+    
   container: {
   }
-  
-  
 
 };
 
-function initGame(targetElement, sceneId, width, height)
+function initGame(sceneId)
 {
-   shared.width = width;
-   shared.height = height;
-   shared.currentScene.id = sceneId;
-   shared.halfWidth = width/2;
-   shared.halfHeight = height/2;
-   shared.config.domSrc = targetElement;
+
+  shared.currentScene.id = sceneId;
    
 }
 

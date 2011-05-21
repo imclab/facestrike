@@ -21,7 +21,9 @@ function initModels() {
       loader.load({ model: model[id].file, callback: function(g) {
         model[id].geometry = g;
         if (id < model.length-1) modelLoader(id+1);
-        else { initScene(); }
+        else {
+          initScene(); render();
+        }
       } });
     }
   }

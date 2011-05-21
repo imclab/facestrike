@@ -6,12 +6,9 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var camera = new THREE.Camera();
-var scene = new THREE.Scene();
-var renderer = new THREE.WebGLRenderer();
 
 function initRenderer(){
-
+  
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize( shared.width, shared.height );
   shared.container.appendChild( renderer.domElement );
@@ -20,9 +17,22 @@ function initRenderer(){
 
 function render() {
 
-  shared.currentScene.update();
-  renderer.render( scene, camera );
-  shared.container.stats.update();
   requestAnimationFrame( render );
 
+  if (shared.currentScene.ready) {
+    
+    shared.currentScene.update();
+    renderer.render( scene, switchCamera() );
+    shared.container.stats.update();
+    
+  }
+    
+}
+
+function switchCamera() {
+  switch (shared.currentCamera) {
+  case 0: return shared.mainCamera; break;
+  case 1: return shared.ballCamera; break;
+  default: return shared.freeCamera; break;
+  }
 }

@@ -9,8 +9,9 @@
 
 function initCanvas(){
 
-  shared.container = document.getElementById( shared.config.domSrc );
-
+  shared.container = document.createElement( 'div' );
+  document.body.appendChild( shared.container );
+  
   shared.container.stats = new Stats();
   shared.container.stats.domElement.style.position = 'absolute';
   shared.container.stats.domElement.style.top = '0px';
