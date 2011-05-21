@@ -6,16 +6,14 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var container, stats;
 
 function initCanvas(){
 
-  container = document.createElement( 'div' );
-  document.body.appendChild( container );
+  shared.container = document.getElementById( shared.config.domSrc );
 
-  stats = new Stats();
-  stats.domElement.style.position = 'absolute';
-  stats.domElement.style.top = '0px';
-  container.appendChild( stats.domElement );
+  shared.container.stats = new Stats();
+  shared.container.stats.domElement.style.position = 'absolute';
+  shared.container.stats.domElement.style.top = '0px';
+  shared.container.appendChild( shared.container.stats.domElement );
   
 }

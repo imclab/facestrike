@@ -12,15 +12,32 @@ var shared = {
   },
 
   config: {
-
+    domSrc : ''
+  },
+  
+  container: {
   }
+  
+  
 
 };
+
+function initGame(targetElement, sceneId, width, height)
+{
+   shared.width = width;
+   shared.height = height;
+   shared.currentScene.id = sceneId;
+   shared.halfWidth = width/2;
+   shared.halfHeight = height/2;
+   shared.config.domSrc = targetElement;
+   
+}
 
 window.onload = function() {
 
   initCanvas();
   initRenderer();
   initModels();
+  initEventListeners();
 
 };

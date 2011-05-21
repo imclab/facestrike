@@ -14,7 +14,7 @@ function initRenderer(){
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize( shared.width, shared.height );
-  container.appendChild( renderer.domElement );
+  shared.container.appendChild( renderer.domElement );
 
 }
 
@@ -22,7 +22,7 @@ function render() {
 
   shared.currentScene.update();
   renderer.render( scene, camera );
-  stats.update();
+  shared.container.stats.update();
   requestAnimationFrame( render );
 
 }

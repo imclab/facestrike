@@ -22,6 +22,7 @@
 <script type="text/javascript" src="js/rendering.js"></script>
 <script type="text/javascript" src="js/initModels.js"></script>
 <script type="text/javascript" src="js/scenes/sandboxScene.js"></script>
+<script type="text/javascript" src="js/simulation/bowlingSimulation.js"></script>
 <script type="text/javascript" src="js/initScene.js"></script>
 <script type="text/javascript" src="js/events.js"></script>
 
@@ -29,10 +30,51 @@
 
 
 <script type="text/javascript">
-
-  shared.currentScene.id = "sandbox";
-
+  initGame("mainDiv","sandbox",550,400);
+  function setFormDefaults()
+  {
+     var f = document.getElementById("bowlParams");
+     f.xforce.value = 0;
+     f.yforce.value = 5000;
+     f.zforce.value = 300;
+     f.mass.value = 50;
+     f.friction.value = 0.2;
+     f.elasticity.value = 0.7;
+  }
+  
+  function setState()
+  {
+     var f = document.getElementById("bowlParams");
+     simulation.mBallPhysics.mBallState.force.x = new Number(f.xforce.value);
+     simulation.mBallPhysics.mBallState.force.y = new Number(f.yforce.value);
+     simulation.mBallPhysics.mBallState.force.z = new Number(f.zforce.value);
+     simulation.mBallPhysics.mBallState.ballMass = new Number(f.mass.value);
+     simulation.mBallPhysics.mBallState.ballElasticity = new Number(f.elasticity.value);
+     simulation.mEnvironmentState.gravity = new Number(f.gravity.value);
+     simulation.mEnvironmentState.groundFriction =new Number(f.friction.value);
+     
+  }
+  
 </script>
 
+<body>
+   
+   <div style="position:absolute; right:20px; z-index:1">
+      <form id="bowlParams">
+         gravity (acceleration): <input name="gravity" type="number" value="3"><br/>
+         friction : <input name = "friction" type="number" value="0.2"><br/>
+         ball radius : 15<br/>
+         ball mass : <input name="mass" type="number" value="50"><br/>
+         ball elasticity : <input name="elasticity" type="number" value="0.7"><br/>
+         y force(up and down): <input name="yforce" type="number" value="5000"><br/>
+         z force(towards pins): <input name="zforce" type="number" value="300"><br/>
+         x force: <input name="xforce" type="number" value="0"><br/>         
+      </form>
+      <button name="defaults" onclick="setFormDefaults()">set defaults</button>
+      <button name="run" onclick="setState()">run</button>
+      
+   </div>
+   <div id = "mainDiv"></div>
+   
 </body>
 </html>

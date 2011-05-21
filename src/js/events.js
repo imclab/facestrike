@@ -8,15 +8,20 @@
 
 //
 
-document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+
+function initEventListeners()
+{
+   shared.container.addEventListener( 'mousedown', onDocumentMouseDown, false );
+}
 
 function onDocumentMouseDown( event ) {
 
-  event.preventDefault();
+ // event.preventDefault();
 
-  document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-  document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-  document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+  shared.container.addEventListener( 'mousemove', onDocumentMouseMove, false );
+  shared.container.addEventListener( 'mouseup', onDocumentMouseUp, false );
+  shared.container.addEventListener( 'mouseout', onDocumentMouseOut, false );
 
 }
 
@@ -28,14 +33,14 @@ function onDocumentMouseMove( event ) {
 
 function onDocumentMouseUp( event ) {
 
-  document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-  document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-  document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+  shared.container.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+  shared.container.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+  shared.container.removeEventListener( 'mouseout', onDocumentMouseOut, false );
 }
 
 function onDocumentMouseOut( event ) {
 
-  document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-  document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-  document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+  shared.container.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+  shared.container.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+  shared.container.removeEventListener( 'mouseout', onDocumentMouseOut, false );
 }

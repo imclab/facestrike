@@ -12,6 +12,7 @@ var ball, ballMaterial;
 var pin = [];
 var pinMaterial;
 var light = [];
+var simulation;
 
 function SandboxScene() {
 
@@ -35,23 +36,22 @@ function SandboxScene() {
   // Ball
   ballMaterial = new THREE.MeshLambertMaterial( { color: 0x333333, lights: true } );
   ball = new THREE.Mesh( model[1].geometry, ballMaterial );
-  ball.position.y = 15;
-  ball.position.z = -900;
+  
   ball.rotation.x = - 140 * ( Math.PI / 180 );
   alley.addChild( ball );
 
   // Pins
   var pin_positions = [];
-  pin_positions.push( new THREE.Vector3(0,0,800) );
-  pin_positions.push( new THREE.Vector3(15.25,0,830.5) );
-  pin_positions.push( new THREE.Vector3(-15.25,0,830.5) );
-  pin_positions.push( new THREE.Vector3(30.5,0,861) );
-  pin_positions.push( new THREE.Vector3(0,0,861) );
-  pin_positions.push( new THREE.Vector3(-30.5,0,861) );
-  pin_positions.push( new THREE.Vector3(42.75,0,891.5) );
-  pin_positions.push( new THREE.Vector3(12.25,0,891.5) );
-  pin_positions.push( new THREE.Vector3(-12.25,0,891.5) );
-  pin_positions.push( new THREE.Vector3(-42.75,0,891.5) );
+  pin_positions.push( new THREE.Vector3(0,FaceStrike.Physics.FLOOR,800) );
+  pin_positions.push( new THREE.Vector3(15.25,FaceStrike.Physics.FLOOR,830.5) );
+  pin_positions.push( new THREE.Vector3(-15.25,FaceStrike.Physics.FLOOR,830.5) );
+  pin_positions.push( new THREE.Vector3(30.5,FaceStrike.Physics.FLOOR,861) );
+  pin_positions.push( new THREE.Vector3(0,FaceStrike.Physics.FLOOR,861) );
+  pin_positions.push( new THREE.Vector3(-30.5,FaceStrike.Physics.FLOOR,861) );
+  pin_positions.push( new THREE.Vector3(42.75,FaceStrike.Physics.FLOOR,891.5) );
+  pin_positions.push( new THREE.Vector3(12.25,FaceStrike.Physics.FLOOR,891.5) );
+  pin_positions.push( new THREE.Vector3(-12.25,FaceStrike.Physics.FLOOR,891.5) );
+  pin_positions.push( new THREE.Vector3(-42.75,FaceStrike.Physics.FLOOR,891.5) );
 
   pinMaterial = new THREE.MeshLambertMaterial( {map: THREE.ImageUtils.loadTexture("assets/textures/pin.jpg"),  color: 0xffffff, lights: true } );
 
@@ -71,11 +71,31 @@ function SandboxScene() {
   light[1].position.set( 0, 2, -1.5 );
   scene.addLight( light[0] );
   scene.addLight( light[1] );
+  
+  var ballState = new FaceStrike.Physics.BallState ({x: 0, y:(FaceStrike.Physics.FLOOR + 15), z:-900},{x:0,y:0,z:0}, 15, 50, 0.7);
+  var environmentState = new FaceStrike.Physics.EnvironmentState(3, 0.02);
+  simulation = new FaceStrike.BowlingSimulation.Simulation(environmentState, ballState);
 
 }
 
-SandboxScene.prototype.update = function(){
 
-  alley.rotation.y = shared.mouse.x/1000;
 
-};
+SandboxScene.prototype = {
+  
+  update : function() {
+   this.updateModels();
+   simulation.update();
+   alley.rotation.y = shared.mouse.x/1000;     
+   
+  },
+  
+  //function updates the state of rendered objects
+  updateModels : function () {
+    //updating ball's position and rotation values
+    var ballState = simulation.getBallState();
+    ball.position.x =  ballState.position.x;
+    ball.position.y =  ballState.position.y;
+    ball.position.z =  ballState.position.z;
+  }
+  
+}
