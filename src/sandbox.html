@@ -47,8 +47,8 @@
     simParam.mass = 50;
     simParam.elasticity = 0.7;
     simParam.xforce = 0;
-    simParam.yforce = 500;
-    simParam.zforce = 1000;
+    simParam.yforce = 5000;
+    simParam.zforce = 100;
   }
   
   function setState()
@@ -68,12 +68,12 @@
   var gui = new DAT.GUI();
 
   gui.add(simParam, 'gravity', 0, 10, 0.05).listen(); //min max step
-  gui.add(simParam, 'friction', 0, 1, 0.01).listen();
+  gui.add(simParam, 'friction', 0, 0.5, 0.005).listen();
   gui.add(simParam, 'mass', 0, 100, 0.1).listen();
   gui.add(simParam, 'elasticity', 0, 1, 0.05).listen();
-  gui.add(simParam, 'xforce', 0, 5000, 10).listen();
-  gui.add(simParam, 'yforce', 0, 5000, 10).listen();
-  gui.add(simParam, 'zforce', 0, 5000, 10).listen();
+  gui.add(simParam, 'xforce', -550, 550, 10).listen();
+  gui.add(simParam, 'yforce', 0, 7000, 100).listen();
+  gui.add(simParam, 'zforce', -550, 550, 10).listen();
 
   gui.add(simParam, 'camera').options({'Main': 0, 'Ball': 1, 'Free': 2}).listen().onChange(function(){shared.currentCamera = simParam.camera;});
   gui.add(simParam, 'setFormDefaults').name('set defaults!');
