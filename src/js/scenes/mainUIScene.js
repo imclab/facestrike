@@ -15,11 +15,11 @@ function MainUIScene() {
 
   this.id = 'mainUI';
 
-  camera = new THREE.Camera( 35, window.innerWidth / window.innerHeight, 10, 10000 );
-  camera.useTarget = false;
-  camera.position.y = 30;
-  camera.position.z = 700;
-  camera.rotation.y = - 180 * ( Math.PI / 180 );
+  shared.mainCamera = new THREE.Camera( 35, window.innerWidth / window.innerHeight, 10, 10000 );
+  shared.mainCamera.useTarget = false;
+  shared.mainCamera.position.y = 30;
+  shared.mainCamera.position.z = 700;
+  shared.mainCamera.rotation.y = - 180 * ( Math.PI / 180 );
 
   scene = new THREE.Scene();
 
@@ -63,6 +63,8 @@ function MainUIScene() {
   scene.addLight( light[1] );
   scene.addLight( light[2] );
   scene.addLight( light[3] );
+  
+  this.ready = true;
 
 }
 
