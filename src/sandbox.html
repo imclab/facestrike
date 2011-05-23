@@ -18,6 +18,7 @@
 <script type="text/javascript" src="js/libs/RequestAnimationFrame.js"></script>
 <script type="text/javascript" src="js/libs/gui.js"></script>
 <script type="text/javascript" src="js/libs/Stats.js"></script>
+<script type="text/javascript" src="js/libs/glMatrix-0.9.5.min.js"></script>
 
 <script type="text/javascript" src="js/main.js"></script>
 
@@ -36,7 +37,9 @@
 
   var simParam = {
     setFormDefaults: function(){ setFormDefaults(); },
-    setState: function(){ setState(); }
+    setState: function(){ setState(); },
+    resetSimulation : function () { doResetSimulation(); },
+    setupStrike : function () { doSetupStrike(); }
   }
   
   function setFormDefaults()
@@ -47,8 +50,34 @@
     simParam.mass = 50;
     simParam.elasticity = 0.7;
     simParam.xforce = 0;
-    simParam.yforce = 5000;
-    simParam.zforce = 100;
+    simParam.yforce = 0;
+    simParam.zforce = 0;
+    simParam.zInitialSpin = 0;
+    simParam.xInitialSpin = 0;
+    simParam.yInitialSpin = 0;
+  }
+  
+  function doSetupStrike()
+  {    
+    simParam.camera = 0;
+    simParam.gravity = 3;
+    simParam.friction = 0.03;
+    simParam.mass = 50;
+    simParam.elasticity = 0.7;
+    simParam.xforce = -130;
+    simParam.yforce = 0;
+    simParam.zforce = 1610;
+    simParam.zInitialSpin = 0.86;
+    simParam.xInitialSpin = 0;
+    simParam.yInitialSpin = 1.91;
+  }
+  
+  function doResetSimulation ()
+  {
+     simulation.mBallPhysics.mBallState.position = {x:0,y:0,z:-900};
+     simulation.mBallPhysics.mBallState.rotation = {x:0,y:0,z:0};
+     simulation.mBallPhysics.mBallState.deltaVelocity = {x:0,y:0,z:0};
+     simulation.mBallPhysics.mBallState.deltaRotation = {x:0,y:0,z:0};
   }
   
   function setState()
@@ -57,6 +86,9 @@
     simulation.mBallPhysics.mBallState.force.x = new Number(simParam.xforce);
     simulation.mBallPhysics.mBallState.force.y = new Number(simParam.yforce);
     simulation.mBallPhysics.mBallState.force.z = new Number(simParam.zforce);
+    simulation.mBallPhysics.mBallState.deltaRotation.x = new Number(simParam.xInitialSpin);
+    simulation.mBallPhysics.mBallState.deltaRotation.y = new Number(simParam.yInitialSpin);
+    simulation.mBallPhysics.mBallState.deltaRotation.z = new Number(simParam.zInitialSpin);
     simulation.mBallPhysics.mBallState.ballMass = new Number(simParam.mass);
     simulation.mBallPhysics.mBallState.ballElasticity = new Number(simParam.elasticity);
     simulation.mEnvironmentState.gravity = new Number(simParam.gravity);
@@ -72,11 +104,16 @@
   gui.add(simParam, 'mass', 0, 100, 0.1).listen();
   gui.add(simParam, 'elasticity', 0, 1, 0.05).listen();
   gui.add(simParam, 'xforce', -550, 550, 10).listen();
-  gui.add(simParam, 'yforce', 0, 7000, 100).listen();
-  gui.add(simParam, 'zforce', -550, 550, 10).listen();
+  gui.add(simParam, 'yforce', -7000, 7000, 100).listen();
+  gui.add(simParam, 'zforce', -7500, 7500, 10).listen();
+  gui.add(simParam, 'zInitialSpin', -4, 4, 0.01).listen();
+  gui.add(simParam, 'xInitialSpin', -4, 4, 0.01).listen();
+  gui.add(simParam, 'yInitialSpin', -4, 4, 0.01).listen();
 
   gui.add(simParam, 'camera').options({'Main': 0, 'Ball': 1, 'Free': 2}).listen().onChange(function(){shared.currentCamera = simParam.camera;});
   gui.add(simParam, 'setFormDefaults').name('set defaults!');
+  gui.add(simParam, 'setupStrike').name('set up a strike!');
+  gui.add(simParam, 'resetSimulation').name('reset simulation');
   gui.add(simParam, 'setState').name('run!');
   
   gui.open();

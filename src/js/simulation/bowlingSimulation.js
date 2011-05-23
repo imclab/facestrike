@@ -15,31 +15,42 @@ FaceStrike = {
          //TODO pins physics
       }
    },
-   
+
    Physics : {
       FLOOR : 0,
-      EPSILON : 0.5,
+      EPSILON : 0.05,
       BallPhysics : function (environmentState, ballState) {
          
          this.mBallState = ballState;
          this.mEnvironmentState = environmentState;        
          this.mPreviousInstantForces = {x:0, y:0, z:0};
+         this.mFrictionMagnitude = 0;
+         this.updateSpinAndVelocityDirections();
+         this.mBallRotationMatrix = mat4.create();         
+         this.updateRotationMatrix();
+         
+         
       },
-      
-      BallState : function (positionVector, forceVector, radius, mass, elasticity) {
-         this.radius = radius;
+
+      BallState : function (positionVector, rotationVector, forceVector, angularVelocityVector, radius, mass, elasticity) {
+         this.radius = radius;        
          this.position = positionVector;
-         this.deltaVelocity = {x:0,y:0,z:0};
+         this.rotation = rotationVector;
+         this.deltaVelocity =  {x:0,y:0,z:0};
+         this.deltaRotation =  angularVelocityVector;
          this.force = forceVector;
          this.ballMass = mass;
+         this.I = 2/5 * this.ballMass * this.radius * this.radius;//moment of inertia of a sphere
+         this.rDI = this.radius / this.I;
          this.ballElasticity = elasticity;
+         
       },
-      
+
       EnvironmentState : function (gravityAcceleration, groundFriction) {
          this.gravity = gravityAcceleration;
          this.groundFriction = groundFriction;
       }
-      
+
    }
 }
 
@@ -53,36 +64,86 @@ FaceStrike.BowlingSimulation.Simulation.prototype = {
    }
 }
 
-
-
 FaceStrike.Physics.BallPhysics.prototype = {
+
    update : function () {
-      this.updateFrictionForces();
-      this.updateVelocityDeltas();      
-      this.updatePosition();      
-      this.updateCollisionDetectionEnvironment();
       
+      this.updateSpinAndVelocityDirections();
+      this.updateFrictionForces();
+      this.updateRotationalVelocityDeltas();
+      this.updateVelocityDeltas();
+      this.updatePosition();      
+      this.updateRotation();
+      this.updateCollisionDetectionEnvironment();      
       
    },
    
+   updateSpinAndVelocityDirections : function () {
+      this.mSpinDirection = {x: this.mBallState.deltaRotation.x, y:this.mBallState.deltaRotation.y, z: this.mBallState.deltaRotation.z};
+      this.mVelocityDirection = {x: this.mBallState.deltaVelocity.x, y:this.mBallState.deltaVelocity.y, z: this.mBallState.deltaVelocity.z};         
+      normalizeVector(this.mSpinDirection);
+      normalizeVector(this.mVelocityDirection);
+   },
+
    updateVelocityDeltas : function () {
       
       this.mBallState.deltaVelocity.y = clampEpsilon(this.mBallState.deltaVelocity.y -this.mEnvironmentState.gravity + (this.mBallState.force.y/this.mBallState.ballMass));
       this.mBallState.deltaVelocity.x = clampEpsilon(this.mBallState.deltaVelocity.x + (this.mBallState.force.x/this.mBallState.ballMass));
       this.mBallState.deltaVelocity.z = clampEpsilon(this.mBallState.deltaVelocity.z + (this.mBallState.force.z/this.mBallState.ballMass));
-      
-      if (this.mBallState.force.x > 0) {
+
+      if (Math.abs(this.mBallState.force.x) > 0) {
          this.mPreviousInstantForces.x = this.mBallState.force.x;
       }
       
-      if (this.mBallState.force.y > 0) {
+      if (Math.abs(this.mBallState.force.y) > 0) {
          this.mPreviousInstantForces.y = this.mBallState.force.y;
       }
       
-      if (this.mBallState.force.z > 0) {
+      if (Math.abs(this.mBallState.force.z) > 0) {
          this.mPreviousInstantForces.z = this.mBallState.force.z;
       }
       
+   },
+   
+   updateRotationalVelocityDeltas : function () {
+      if (this.ballIsHittingFloor())
+      {
+         var direction = {x: this.mBallState.deltaVelocity.x, y:0, z: this.mBallState.deltaVelocity.z};
+         normalizeVector(direction);
+         //rotation into z axis, towards pins
+         var xSpin = Math.abs(clampEpsilon((this.mBallState.deltaRotation.x)* this.mBallState.radius));
+         if (xSpin > Math.abs(this.mBallState.deltaVelocity.z))
+         {            
+            //overspin, energy is transfered to translation
+            var rawRotation = this.mSpinDirection.x * this.mFrictionMagnitude * this.mBallState.rDI;     
+            this.mBallState.deltaRotation.x -= rawRotation;
+            //gets multiplied times two since it has to overcome the translation friction
+            this.mBallState.force.z +=  2*this.mFrictionMagnitude*this.mSpinDirection.x;
+         }
+         else if (xSpin < Math.abs(this.mBallState.deltaVelocity.z))
+         {
+           //underspin, energy is transfered to rotation
+           var rawRotation = this.mVelocityDirection.z * this.mFrictionMagnitude * this.mBallState.rDI;                   
+           this.mBallState.deltaRotation.x += rawRotation;
+           this.mBallState.force.z -=  2*this.mFrictionMagnitude*this.mVelocityDirection.z;
+         }
+         
+         //rotation into z axis, side to side
+         var zSpin = Math.abs(clampEpsilon((this.mBallState.deltaRotation.z)* this.mBallState.radius));
+         if (zSpin > Math.abs(this.mBallState.deltaVelocity.x))
+         {            
+            var rawRotation = this.mSpinDirection.z * this.mFrictionMagnitude * this.mBallState.rDI;     
+            this.mBallState.deltaRotation.z -= rawRotation;
+            this.mBallState.force.x +=  2*this.mFrictionMagnitude*this.mSpinDirection.z;
+         }
+         else if (zSpin < Math.abs(this.mBallState.deltaVelocity.x))
+         {
+           var rawRotation = this.mVelocityDirection.x * this.mFrictionMagnitude * this.mBallState.rDI;                   
+           this.mBallState.deltaRotation.z += rawRotation;
+           this.mBallState.force.x -=  2*this.mFrictionMagnitude*this.mVelocityDirection.x;           
+         }
+
+      }
    },
    
    updatePosition : function () {
@@ -91,13 +152,23 @@ FaceStrike.Physics.BallPhysics.prototype = {
       this.mBallState.position.z += this.mBallState.deltaVelocity.z;
    },
    
+   updateRotation : function () {
+      this.updateRotationMatrix();
+      var newRotationCoords = mat4.multiplyVec3(this.mBallRotationMatrix,[this.mBallState.deltaRotation.x,this.mBallState.deltaRotation.y,-this.mBallState.deltaRotation.z]);
+      //the new coordinates present loss of floating point precission... is there a better way to translate these coordinates?
+      this.mBallState.rotation.x += newRotationCoords[0];
+      this.mBallState.rotation.y += newRotationCoords[1];
+      this.mBallState.rotation.z += newRotationCoords[2];     
+
+   },
+   
    updateCollisionDetectionEnvironment : function () {
       //detect if the floor is hit
       if (this.ballIsHittingFloor())
       {
          this.mBallState.position.y = this.mBallState.radius;
          this.mBallState.deltaVelocity.y = 0;
-         this.mBallState.force.y = clampEpsilon( this.mPreviousInstantForces.y * this.mBallState.ballElasticity );
+         this.mBallState.force.y = clampEpsilon( Math.abs(this.mPreviousInstantForces.y) * this.mBallState.ballElasticity );
          
       }
       else
@@ -113,24 +184,33 @@ FaceStrike.Physics.BallPhysics.prototype = {
    updateFrictionForces : function ()
    {
       //friction only exists if an object is moving, and points to the opposite direction
-      //of the current movement
-      var direction = {x: this.mBallState.deltaVelocity.x, y:0, z: this.mBallState.deltaVelocity.z};
-      
-      normalizeVector(direction);
+      //of the current movement      
       
       if (this.ballIsHittingFloor())
       {
-         var frictionMagnitude = -this.mBallState.ballMass * this.mEnvironmentState.gravity * this.mEnvironmentState.groundFriction;
-         this.mBallState.force.x += (frictionMagnitude*direction.x);
-         this.mBallState.force.z += (frictionMagnitude*direction.z);        
-         
-      }      
+         this.mFrictionMagnitude = this.mBallState.ballMass * this.mEnvironmentState.gravity * this.mEnvironmentState.groundFriction;
+         this.mBallState.force.x -= (this.mFrictionMagnitude*this.mVelocityDirection.x);
+         this.mBallState.force.z -= (this.mFrictionMagnitude*this.mVelocityDirection.z);  
+      }
+      else
+      {
+         this.mFrictionMagnitude = 0;
+      }
+      
+      
    },
    
-   ballIsHittingFloor : function ()
-   {
+   updateRotationMatrix : function () {
+      mat4.identity(this.mBallRotationMatrix);
+      var rotVector = {x:this.mBallState.rotation.x,y:this.mBallState.rotation.y,z:this.mBallState.rotation.z};
+      var magnitude = normalizeVector(rotVector);
+      mat4.rotate(this.mBallRotationMatrix,magnitude,[rotVector.x,rotVector.y,rotVector.z]);
+      mat4.inverse(this.mBallRotationMatrix);
+   },
+   
+   ballIsHittingFloor : function ()  {
       return ((this.mBallState.position.y - this.mBallState.radius) <= FaceStrike.Physics.FLOOR);
-   },  
+   }  
 }
 
 //TODO: provisional function that normalizes a vector, replace with respective THREE function??
@@ -140,7 +220,7 @@ function normalizeVector (vector)
    var len = Math.sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
    if (len == 0) 
    {
-      return;
+      return 0;
    }
    else
    {
@@ -148,7 +228,7 @@ function normalizeVector (vector)
       vector.y /= len;
       vector.z /= len;
    }
-   return vector;
+   return len;
 }
 
 //TODO: add this function to FaceStrike.utils namespace
@@ -156,3 +236,4 @@ function clampEpsilon (val)
 {
    return Math.abs(val) < FaceStrike.Physics.EPSILON ? 0 : val;
 }
+

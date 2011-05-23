@@ -33,7 +33,6 @@ function SandboxScene() {
   ballMaterial = new THREE.MeshLambertMaterial( { color: 0x333333, lights: true } );
   ball = new THREE.Mesh( model[1].geometry, ballMaterial );
   
-  ball.rotation.x = - 140 * ( Math.PI / 180 );
   scene.addChild( ball );
 
   // Pins
@@ -68,8 +67,8 @@ function SandboxScene() {
   scene.addLight( light[0] );
   scene.addLight( light[1] );
   
-  var ballState = new FaceStrike.Physics.BallState ({x: 0, y:(FaceStrike.Physics.FLOOR + 15), z:-900},{x:0,y:0,z:0}, 15, 50, 0.7);
-  var environmentState = new FaceStrike.Physics.EnvironmentState(3, 0.02);
+  var ballState = new FaceStrike.Physics.BallState ({x: 0, y:(FaceStrike.Physics.FLOOR + 15), z:-900},{x:0,y:0,z:0},{x:0,y:0,z:0},{x:0,y:0,z:0}, 15, 50, 0.7);
+  var environmentState = new FaceStrike.Physics.EnvironmentState(3, 0.03);
   simulation = new FaceStrike.BowlingSimulation.Simulation(environmentState, ballState);
 
   this.ready = true;
@@ -91,6 +90,10 @@ SandboxScene.prototype = {
     ball.position.x =  ballState.position.x;
     ball.position.y =  ballState.position.y;
     ball.position.z =  ballState.position.z;
+    
+    ball.rotation.x = ballState.rotation.x;
+    ball.rotation.y = ballState.rotation.y;
+    ball.rotation.z = ballState.rotation.z;
     
     shared.ballCamera.position.x = ball.position.x;
     shared.ballCamera.position.y = ball.position.y + 20;
