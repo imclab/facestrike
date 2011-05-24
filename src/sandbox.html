@@ -75,7 +75,7 @@
   function doResetSimulation ()
   {
      simulation.mBallPhysics.mBallState.position = {x:0,y:0,z:-900};
-     simulation.mBallPhysics.mBallState.rotation = {x:0,y:0,z:0};
+     simulation.mBallPhysics.mBallState.updateRotationMatrix({x:0,y:0,z:0});
      simulation.mBallPhysics.mBallState.deltaVelocity = {x:0,y:0,z:0};
      simulation.mBallPhysics.mBallState.deltaRotation = {x:0,y:0,z:0};
   }

@@ -67,7 +67,7 @@ function SandboxScene() {
   scene.addLight( light[0] );
   scene.addLight( light[1] );
   
-  var ballState = new FaceStrike.Physics.BallState ({x: 0, y:(FaceStrike.Physics.FLOOR + 15), z:-900},{x:0,y:0,z:0},{x:0,y:0,z:0},{x:0,y:0,z:0}, 15, 50, 0.7);
+  var ballState = new FaceStrike.Physics.BallState ({x: 0, y:(FaceStrike.Physics.FLOOR + 15), z:-900},{x:-Math.PI/2,y:0,z:0},{x:0,y:0,z:0},{x:0,y:0,z:0}, 15, 50, 0.7);
   var environmentState = new FaceStrike.Physics.EnvironmentState(3, 0.03);
   simulation = new FaceStrike.BowlingSimulation.Simulation(environmentState, ballState);
 
@@ -85,15 +85,15 @@ SandboxScene.prototype = {
   
   //function updates the state of rendered objects
   updateModels : function () {
-    //updating ball's position and rotation values
+    //updating balls' position 
     var ballState = simulation.getBallState();
     ball.position.x =  ballState.position.x;
     ball.position.y =  ballState.position.y;
-    ball.position.z =  ballState.position.z;
-    
-    ball.rotation.x = ballState.rotation.x;
-    ball.rotation.y = ballState.rotation.y;
-    ball.rotation.z = ballState.rotation.z;
+    ball.position.z =  ballState.position.z;  
+   
+    //updating balls' rotation
+    var r = ballState.mBallRotationMatrix;
+    ball.rotation.setRotationFromMatrix(new THREE.Matrix4(r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8],r[9],r[10],r[11],r[13],r[14],r[15]));
     
     shared.ballCamera.position.x = ball.position.x;
     shared.ballCamera.position.y = ball.position.y + 20;

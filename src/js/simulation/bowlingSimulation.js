@@ -25,17 +25,15 @@ FaceStrike = {
          this.mEnvironmentState = environmentState;        
          this.mPreviousInstantForces = {x:0, y:0, z:0};
          this.mFrictionMagnitude = 0;
-         this.updateSpinAndVelocityDirections();
-         this.mBallRotationMatrix = mat4.create();         
-         this.updateRotationMatrix();
+         this.updateSpinAndVelocityDirections();         
+         
          
          
       },
 
       BallState : function (positionVector, rotationVector, forceVector, angularVelocityVector, radius, mass, elasticity) {
          this.radius = radius;        
-         this.position = positionVector;
-         this.rotation = rotationVector;
+         this.position = positionVector;         
          this.deltaVelocity =  {x:0,y:0,z:0};
          this.deltaRotation =  angularVelocityVector;
          this.force = forceVector;
@@ -43,7 +41,9 @@ FaceStrike = {
          this.I = 2/5 * this.ballMass * this.radius * this.radius;//moment of inertia of a sphere
          this.rDI = this.radius / this.I;
          this.ballElasticity = elasticity;
-         
+         this.mBallRotationMatrix = mat4.create();
+         this.updateRotationMatrix(rotationVector);
+         mat4.identity(this.mBallRotationMatrix);         
       },
 
       EnvironmentState : function (gravityAcceleration, groundFriction) {
@@ -153,13 +153,9 @@ FaceStrike.Physics.BallPhysics.prototype = {
    },
    
    updateRotation : function () {
-      this.updateRotationMatrix();
-      var newRotationCoords = mat4.multiplyVec3(this.mBallRotationMatrix,[this.mBallState.deltaRotation.x,this.mBallState.deltaRotation.y,-this.mBallState.deltaRotation.z]);
+      
       //the new coordinates present loss of floating point precission... is there a better way to translate these coordinates?
-      this.mBallState.rotation.x += newRotationCoords[0];
-      this.mBallState.rotation.y += newRotationCoords[1];
-      this.mBallState.rotation.z += newRotationCoords[2];     
-
+      this.mBallState.updateRotationMatrix(this.mBallState.deltaRotation);
    },
    
    updateCollisionDetectionEnvironment : function () {
@@ -199,18 +195,18 @@ FaceStrike.Physics.BallPhysics.prototype = {
       
       
    },
-   
-   updateRotationMatrix : function () {
-      mat4.identity(this.mBallRotationMatrix);
-      var rotVector = {x:this.mBallState.rotation.x,y:this.mBallState.rotation.y,z:this.mBallState.rotation.z};
-      var magnitude = normalizeVector(rotVector);
-      mat4.rotate(this.mBallRotationMatrix,magnitude,[rotVector.x,rotVector.y,rotVector.z]);
-      mat4.inverse(this.mBallRotationMatrix);
-   },
-   
+      
    ballIsHittingFloor : function ()  {
       return ((this.mBallState.position.y - this.mBallState.radius) <= FaceStrike.Physics.FLOOR);
    }  
+}
+
+FaceStrike.Physics.BallState.prototype = {
+   updateRotationMatrix : function (vector) {      
+      var rotVector = {x:vector.x,y:vector.y,z:vector.z};
+      var magnitude = normalizeVector(rotVector);
+      mat4.rotate(this.mBallRotationMatrix,magnitude,[-rotVector.x,rotVector.y,rotVector.z]);
+   }
 }
 
 //TODO: provisional function that normalizes a vector, replace with respective THREE function??
