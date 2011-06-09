@@ -9,10 +9,11 @@
 
 FaceStrike = {
    BowlingSimulation : {
-      Simulation : function (environmentState, ballState) {
+      Simulation : function (environmentState, ballState, pinsStates) {
          this.mBallPhysics = new FaceStrike.Physics.BallPhysics(environmentState, ballState);
          this.mEnvironmentState = environmentState;
          //TODO pins physics
+         this.mPinsStates = pinsStates;
       }
    },
 
@@ -45,6 +46,10 @@ FaceStrike = {
          this.updateRotationMatrix(rotationVector);
          mat4.identity(this.mBallRotationMatrix);         
       },
+      
+      PinState : function (positionVector) {
+         this.position = positionVector;
+      },
 
       EnvironmentState : function (gravityAcceleration, groundFriction) {
          this.gravity = gravityAcceleration;
@@ -61,6 +66,11 @@ FaceStrike.BowlingSimulation.Simulation.prototype = {
    
    getBallState : function () {
       return this.mBallPhysics.mBallState;
+   },
+   
+   getPinsStates : function () {
+      //later this array should be 'wrapped' into a pin physics object
+      return this.mPinsStates;
    }
 }
 
